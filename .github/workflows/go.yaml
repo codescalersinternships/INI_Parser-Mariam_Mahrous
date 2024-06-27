@@ -17,8 +17,6 @@ jobs:
       with:
         go-version: '1.22.4'
 
-    - name: Build
-      run: go build -v ./...
 
     - name: format
       run: gofmt -w -v ./...
@@ -27,5 +25,5 @@ jobs:
       run: go test -v ./... 
 
     - name : Run Go-linter
-      uses : github/golangci-lint
+      uses: golangci/golangci-lint-action@v6
       

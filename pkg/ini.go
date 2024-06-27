@@ -11,18 +11,6 @@ type IniParser struct {
 	section map[string]map[string]string
 }
 
-func fileNotFound(e error, file string) {
-	if e != nil {
-		fmt.Errorf("file %q not found", file)
-	}
-}
-
-func failedToWrite(e error, file string) {
-	if e != nil {
-		fmt.Errorf("Couldn't write in %q", file)
-	}
-}
-
 func (parser *IniParser) LoadFromString(content string) {
 	var currentSection string
 	lines := strings.Split(content, "\n")
@@ -39,13 +27,15 @@ func (parser *IniParser) LoadFromString(content string) {
 
 func (parser *IniParser) LoadFromFile(fileName string) error {
 	dat, err := os.ReadFile(fileName)
-	fileNotFound(err, fileName)
+	if err != nil {
+		fmt.Errorf("file %s not found", fileName)
+	}
 	parser.LoadFromString(string(dat))
 	return err
 }
 
 func (parser *IniParser) GetSectionNames() []string {
-	var sections []string
+		var sections []string
 	for s := range parser.section {
 		sections = append(sections, s)
 	}

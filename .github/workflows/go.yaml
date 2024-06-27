@@ -19,7 +19,7 @@ jobs:
 
 
     - name: format
-      run: gofmt -w -v ./...
+      run: gofmt -w  -l
 
     - name: Test
       run: go test -v ./... 

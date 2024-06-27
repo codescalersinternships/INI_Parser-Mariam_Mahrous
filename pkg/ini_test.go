@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"reflect"
 	"testing"
 )
@@ -126,4 +127,48 @@ func TestSetValue(t *testing.T) {
 			t.Errorf("got %s want mariam", got)
 		}
 	})
+}
+
+func TestToString(t *testing.T) {
+	t.Helper()
+	parser := &IniParser{}
+	parser.LoadFromFile("golden_file.txt")
+	got := parser.ToString()
+	parser.LoadFromString(got)
+	want := `
+[forge.example]
+User = hg
+
+[topsecret.server.example]
+Port = 50022
+ForwardX11 = no
+`
+	if parser.section["forge.example"]["User"] != "hg" && parser.section["topsecret.server.example"]["ForwardX11"] != "no" && parser.section["topsecret.server.example"]["Port"] != "50022" {
+		t.Errorf("want:\n%s\nGot:\n%s", want, got)
+	}
+}
+
+func TestSaveToFile(t *testing.T) {
+	parser := &IniParser{}
+	parser.LoadFromFile("golden_file.txt")
+	parser.SaveToFile("test_output")
+	content, err := os.ReadFile("test_output.txt")
+	if err != nil {
+		t.Fatalf("Failed to read the file: %s", err)
+	}
+	parser.LoadFromString(string(content))
+	want := `
+[forge.example]
+User = hg
+
+[topsecret.server.example]
+Port = 50022
+ForwardX11 = no
+`
+
+	if parser.section["forge.example"]["User"] != "hg" && parser.section["topsecret.server.example"]["ForwardX11"] != "no" && parser.section["topsecret.server.example"]["Port"] != "50022" {
+		t.Errorf("want:\n%s\nGot:\n%s", want, content)
+	}
+
+	os.Remove("test_output.txt")
 }

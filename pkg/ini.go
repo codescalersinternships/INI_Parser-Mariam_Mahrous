@@ -1,32 +1,29 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"maps"
 	"os"
 	"strings"
 )
-
-func check(e error) {
-	if e != nil {
-		log.Fatalf("Can't Read file %s\n", e)
-	}
-}
 
 type IniParser struct {
 	section map[string]map[string]string
 }
 
-func (parser *IniParser) SetValue(section, key, value string) {
-	if parser.section == nil {
-		parser.section = make(map[string]map[string]string)
+func fileNotFound(e error, file string) {
+	if e != nil {
+		fmt.Errorf("file %q not found", file)
 	}
-	if parser.section[section] == nil {
-		parser.section[section] = make(map[string]string)
-	}
-	parser.section[section][key] = value
 }
 
-func (parser *IniParser) LoadFromString(content string) *IniParser {
+func failedToWrite(e error, file string) {
+	if e != nil {
+		fmt.Errorf("Couldn't write in %q", file)
+	}
+}
+
+func (parser *IniParser) LoadFromString(content string) {
 	var currentSection string
 	lines := strings.Split(content, "\n")
 	for _, line := range lines {
@@ -38,13 +35,13 @@ func (parser *IniParser) LoadFromString(content string) *IniParser {
 			parser.SetValue(currentSection, values[0], values[1])
 		}
 	}
-	return parser
 }
 
-func (parser *IniParser) LoadFromFile(fileName string) *IniParser {
+func (parser *IniParser) LoadFromFile(fileName string) error {
 	dat, err := os.ReadFile(fileName)
-	check(err)
-	return parser.LoadFromString(string(dat))
+	fileNotFound(err, fileName)
+	parser.LoadFromString(string(dat))
+	return err
 }
 
 func (parser *IniParser) GetSectionNames() []string {
@@ -56,12 +53,23 @@ func (parser *IniParser) GetSectionNames() []string {
 }
 
 func (parser *IniParser) GetSection() map[string]map[string]string {
-	return parser.section
+	m2 := make(map[string]map[string]string, len(parser.section))
+	maps.Copy(m2, parser.section)
+	return m2
 }
 
-// Check lw i tried to get a section msh mawgod yet
 func (parser *IniParser) GetValue(sectionName, key string) string {
 	return parser.section[sectionName][key]
+}
+
+func (parser *IniParser) SetValue(section, key, value string) {
+	if parser.section == nil {
+		parser.section = make(map[string]map[string]string)
+	}
+	if parser.section[section] == nil {
+		parser.section[section] = make(map[string]string)
+	}
+	parser.section[section][key] = value
 }
 
 func (parser *IniParser) ToString() string {
@@ -77,11 +85,17 @@ func (parser *IniParser) ToString() string {
 	return content
 }
 
-func (parser *IniParser) SaveToFile(path string) {
+func (parser *IniParser) SaveToFile(path string) error {
 	dat := parser.ToString()
 	f, err := os.Create(path + ".txt")
-	check(err)
+	if err != nil {
+		fmt.Errorf("Can't Create  %q file", path+".txt")
+		return err
+	}
 	defer f.Close()
 	_, err = f.WriteString(dat)
-	check(err)
+	if err != nil {
+		fmt.Errorf("Can't write in   %q file", path+".txt")
+	}
+	return err
 }

@@ -3,11 +3,11 @@ package main
 import (
 	"os"
 	"reflect"
-	"testing"
 	"slices"
+	"testing"
 )
 
-func TestAdd(t *testing.T) {
+func TestParser_Add(t *testing.T) {
 	parser := &IniParser{}
 	parser.Add("section1", "hello", "world")
 
@@ -16,7 +16,7 @@ func TestAdd(t *testing.T) {
 	}
 }
 
-func TestLoadFromString(t *testing.T) {
+func TestParser_LoadFromString(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	testContent := `[forge.example]
@@ -46,7 +46,7 @@ func TestLoadFromString(t *testing.T) {
 	})
 }
 
-func TestLoadFromFile(t *testing.T) {
+func TestParser_LoadFromFile(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")
@@ -71,66 +71,58 @@ func TestLoadFromFile(t *testing.T) {
 	})
 }
 
-func TestGetSectionNames(t *testing.T) {
+func TestParser_GetSectionNames(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")
-	t.Run("Get sections names", func(t *testing.T) {
-		got := parser.GetSectionNames()
-		want := []string{"forge.example", "topsecret.server.example"}
-		if 	!slices.Contains(got,"forge.example") || !slices.Contains(got,"topsecret.server.example") {
-			t.Errorf("got %v want %v given", got, want)
-		}
-	})
+	got := parser.GetSectionNames()
+	want := []string{"forge.example", "topsecret.server.example"}
+	if !slices.Contains(got, "forge.example") || !slices.Contains(got, "topsecret.server.example") {
+		t.Errorf("got %v want %v given", got, want)
+	}
 }
 
-func TestGetSection(t *testing.T) {
+func TestParser_GetSection(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")
-	t.Run("Get sections", func(t *testing.T) {
-		got := parser.GetSection()
-		want := make(map[string]map[string]string)
-		want["forge.example"] = make(map[string]string)
-		want["forge.example"]["User"] = "hg"
-		want["topsecret.server.example"] = make(map[string]string)
-		want["topsecret.server.example"]["Port"] = "50022"
-		want["topsecret.server.example"]["ForwardX11"] = "no"
+	got := parser.GetSection()
+	want := make(map[string]map[string]string)
+	want["forge.example"] = make(map[string]string)
+	want["forge.example"]["User"] = "hg"
+	want["topsecret.server.example"] = make(map[string]string)
+	want["topsecret.server.example"]["Port"] = "50022"
+	want["topsecret.server.example"]["ForwardX11"] = "no"
 
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got %v want %v given", got, want)
-		}
-	})
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v given", got, want)
+	}
 }
 
-func TestGetValue(t *testing.T) {
+func TestParser_GetValue(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")
-	t.Run("Get value", func(t *testing.T) {
-		got := parser.GetValue("forge.example", "User")
-		want := "hg"
-		if got != want {
-			t.Errorf("got %s want %s", got, want)
-		}
-	})
+	got := parser.GetValue("forge.example", "User")
+	want := "hg"
+	if got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
 }
 
-func TestSetValue(t *testing.T) {
+func TestParser_SetValue(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")
-	t.Run("set value", func(t *testing.T) {
-		parser.SetValue("forge.example", "user", "mariam")
-		got := parser.section["forge.example"]["user"]
+	parser.SetValue("forge.example", "user", "mariam")
+	got := parser.section["forge.example"]["user"]
 
-		if "mariam" != got {
-			t.Errorf("got %s want mariam", got)
-		}
-	})
+	if "mariam" != got {
+		t.Errorf("got %s want mariam", got)
+	}
 }
 
-func TestToString(t *testing.T) {
+func TestParser_ToString(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")
@@ -149,7 +141,7 @@ ForwardX11 = no
 	}
 }
 
-func TestSaveToFile(t *testing.T) {
+func TestParser_SaveToFile(t *testing.T) {
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")
 	parser.SaveToFile("test_output")

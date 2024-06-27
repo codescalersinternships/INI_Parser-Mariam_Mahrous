@@ -44,7 +44,7 @@ func TestLoadFromString(t *testing.T) {
 	})
 }
 
-func TestloadFromFile(t *testing.T) {
+func TestLoadFromFile(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")

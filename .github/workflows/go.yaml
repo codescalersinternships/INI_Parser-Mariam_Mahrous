@@ -20,10 +20,12 @@ jobs:
     - name: Build
       run: go build -v ./...
 
+    - name: format
+      run: gofmt -w -v ./...
+
     - name: Test
       run: go test -v ./... 
 
-    - name : Run Super-Linter
-      uses : github/super-linter@v3
-
+    - name : Run Go-linter
+      uses : github/golangci-lint
       

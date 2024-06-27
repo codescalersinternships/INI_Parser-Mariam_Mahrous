@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -17,7 +16,7 @@ type IniParser struct {
 	section map[string]map[string]string
 }
 
-func (parser *IniParser) Add(section, key, value string) {
+func (parser *IniParser) SetValue(section, key, value string) {
 	if parser.section == nil {
 		parser.section = make(map[string]map[string]string)
 	}
@@ -36,13 +35,7 @@ func (parser *IniParser) LoadFromString(content string) *IniParser {
 			currentSection = line[1 : len(line)-1]
 		} else if strings.Contains(line, "=") {
 			values := strings.Split(line, " = ")
-			if parser.section == nil {
-				parser.section = make(map[string]map[string]string)
-			}
-			if parser.section[currentSection] == nil {
-				parser.section[currentSection] = make(map[string]string)
-			}
-			parser.section[currentSection][values[0]] = values[1]
+			parser.SetValue(currentSection, values[0], values[1])
 		}
 	}
 	return parser
@@ -71,14 +64,8 @@ func (parser *IniParser) GetValue(sectionName, key string) string {
 	return parser.section[sectionName][key]
 }
 
-// Check lw i tried to set a section msh mawgod yet
-func (parser *IniParser) SetValue(section, key, value string) {
-	parser.section[section][key] = value
-}
-
 func (parser *IniParser) ToString() string {
 	sectionNames := parser.GetSectionNames()
-	fmt.Println(sectionNames)
 	var content string
 	for _, section := range sectionNames {
 		content += "\n" + "[" + section + "]\n"

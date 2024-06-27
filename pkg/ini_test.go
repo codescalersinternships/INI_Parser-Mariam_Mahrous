@@ -7,15 +7,6 @@ import (
 	"testing"
 )
 
-func TestParser_Add(t *testing.T) {
-	parser := &IniParser{}
-	parser.Add("section1", "hello", "world")
-
-	if parser.section["section1"]["hello"] != "world" {
-		t.Errorf("got %q want world", parser.section["section1"]["hello"])
-	}
-}
-
 func TestParser_LoadFromString(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
@@ -114,12 +105,31 @@ func TestParser_SetValue(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	parser.LoadFromFile("golden_file.txt")
-	parser.SetValue("forge.example", "user", "mariam")
-	got := parser.section["forge.example"]["user"]
 
-	if "mariam" != got {
-		t.Errorf("got %s want mariam", got)
-	}
+	t.Run("Setting a value that exitsts", func(t *testing.T) {
+		parser.SetValue("forge.example", "User", "mariam")
+		got := parser.section["forge.example"]["User"]
+
+		if "mariam" != got {
+			t.Errorf("got %s want mariam", got)
+		}
+	})
+	t.Run("Trying to set a value for a key that doesn't exist", func(t *testing.T) {
+		want := "80:60:244:32"
+		parser.SetValue("forge.example", "IP_address", want)
+		got := parser.section["forge.example"]["IP_address"]
+		if got != want {
+			t.Errorf("got %s want %s given", got, want)
+		}
+	})
+	t.Run("Trying to set a value for a section/key that doesn't exist", func(t *testing.T) {
+		want := "80:60:244:32"
+		parser.SetValue("Default", "IP_address", want)
+		got := parser.section["Default"]["IP_address"]
+		if got != want {
+			t.Errorf("got %s want %s given", got, want)
+		}
+	})
 }
 
 func TestParser_ToString(t *testing.T) {

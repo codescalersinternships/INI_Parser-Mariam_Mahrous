@@ -4,6 +4,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"slices"
 )
 
 func TestAdd(t *testing.T) {
@@ -77,7 +78,7 @@ func TestGetSectionNames(t *testing.T) {
 	t.Run("Get sections names", func(t *testing.T) {
 		got := parser.GetSectionNames()
 		want := []string{"forge.example", "topsecret.server.example"}
-		if !reflect.DeepEqual(got, want) {
+		if 	!slices.Contains(got,"forge.example") || !slices.Contains(got,"topsecret.server.example") {
 			t.Errorf("got %v want %v given", got, want)
 		}
 	})

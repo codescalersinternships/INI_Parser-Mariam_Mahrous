@@ -19,8 +19,8 @@ func (parser *IniParser) LoadFromString(content string) error {
 		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
 			currentSection = line[1 : len(line)-1]
 		} else if strings.Contains(line, "=") {
-			values := strings.Split(line, " = ")
-			err := parser.SetValue(currentSection, values[0], values[1])
+			values := strings.Split(line, "=")
+			err := parser.SetValue(currentSection, strings.TrimSpace(values[0]), strings.TrimSpace(values[1]))
 			if err != nil {
 				return err
 			}

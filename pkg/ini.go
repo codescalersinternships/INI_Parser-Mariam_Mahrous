@@ -11,7 +11,7 @@ type IniParser struct {
 	section map[string]map[string]string
 }
 
-func (parser *IniParser) LoadFromString(content string) {
+func (parser *IniParser) LoadFromString(content string) error {
 	var currentSection string
 	lines := strings.Split(content, "\n")
 	for _, line := range lines {
@@ -20,22 +20,26 @@ func (parser *IniParser) LoadFromString(content string) {
 			currentSection = line[1 : len(line)-1]
 		} else if strings.Contains(line, "=") {
 			values := strings.Split(line, " = ")
-			parser.SetValue(currentSection, values[0], values[1])
+			err := parser.SetValue(currentSection, values[0], values[1])
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
 func (parser *IniParser) LoadFromFile(fileName string) error {
 	dat, err := os.ReadFile(fileName)
 	if err != nil {
-		fmt.Errorf("file %s not found", fileName)
+		return fmt.Errorf("file %s not found", fileName)
 	}
-	parser.LoadFromString(string(dat))
+	err = parser.LoadFromString(string(dat))
 	return err
 }
 
 func (parser *IniParser) GetSectionNames() []string {
-		var sections []string
+	var sections []string
 	for s := range parser.section {
 		sections = append(sections, s)
 	}
@@ -48,11 +52,24 @@ func (parser *IniParser) GetSection() map[string]map[string]string {
 	return m2
 }
 
-func (parser *IniParser) GetValue(sectionName, key string) string {
-	return parser.section[sectionName][key]
+func (parser *IniParser) GetValue(sectionName, key string) (string, error) {
+	sectionMap, ok := parser.section[sectionName]
+	if !ok {
+		return sectionMap[key], fmt.Errorf("Can't get: section isn't found")
+	} else if sectionMap[key] == "" {
+		return sectionMap[key], fmt.Errorf("Can't get: key isn't found")
+	}
+	return sectionMap[key], nil
 }
 
-func (parser *IniParser) SetValue(section, key, value string) {
+func (parser *IniParser) SetValue(section, key, value string) error {
+	if section == "" {
+		return fmt.Errorf("Trying to add key and value for an empty section")
+	} else if key == "" {
+		return fmt.Errorf("Can't Set/Add missing key")
+	} else if value == "" {
+		return fmt.Errorf("Can't Set/Add missing value")
+	}
 	if parser.section == nil {
 		parser.section = make(map[string]map[string]string)
 	}
@@ -60,6 +77,7 @@ func (parser *IniParser) SetValue(section, key, value string) {
 		parser.section[section] = make(map[string]string)
 	}
 	parser.section[section][key] = value
+	return nil
 }
 
 func (parser *IniParser) ToString() string {
@@ -79,13 +97,12 @@ func (parser *IniParser) SaveToFile(path string) error {
 	dat := parser.ToString()
 	f, err := os.Create(path + ".txt")
 	if err != nil {
-		fmt.Errorf("Can't Create  %q file", path+".txt")
-		return err
+		return fmt.Errorf("Can't Create  %s file", path+".txt")
 	}
 	defer f.Close()
 	_, err = f.WriteString(dat)
 	if err != nil {
-		fmt.Errorf("Can't write in   %q file", path+".txt")
+		return fmt.Errorf("Can't write in  %s file", path+".txt")
 	}
 	return err
 }

@@ -15,7 +15,7 @@ Port = 50022
 ForwardX11 = no
 `
 
-func checkError(t *testing.T, err error) {
+func handleTestsErrors(t *testing.T, err error) {
 	if err != nil {
 		t.Errorf("An error occured %v", err)
 		t.Fail()
@@ -23,11 +23,11 @@ func checkError(t *testing.T, err error) {
 }
 
 func TestParser_LoadFromString(t *testing.T) {
-	t.Helper()
+
 	parser := &IniParser{}
 	t.Run("Checking empty string", func(t *testing.T) {
 		err := parser.LoadFromString("")
-		checkError(t, err)
+		handleTestsErrors(t, err)
 		got := len(parser.section)
 		want := 0
 		if got != want {
@@ -36,7 +36,7 @@ func TestParser_LoadFromString(t *testing.T) {
 	})
 	t.Run("valid string", func(t *testing.T) {
 		err := parser.LoadFromString(testParserString)
-		checkError(t, err)
+		handleTestsErrors(t, err)
 		got := parser.section["forge.example"]["User"]
 		want := "hg"
 		if got != want {
@@ -56,11 +56,11 @@ func TestParser_LoadFromString(t *testing.T) {
 }
 
 func TestParser_LoadFromFile(t *testing.T) {
-	t.Helper()
+
 	parser := &IniParser{}
 	t.Run("valid file", func(t *testing.T) {
 		err := parser.LoadFromFile("./testdata/input_file.txt")
-		checkError(t, err)
+		handleTestsErrors(t, err)
 		got := parser.section["forge.example"]["User"]
 		want := "hg"
 		if got != want {
@@ -86,11 +86,11 @@ func TestParser_LoadFromFile(t *testing.T) {
 }
 
 func TestParser_GetSectionNames(t *testing.T) {
-	t.Helper()
+
 	parser := &IniParser{}
 	t.Run("Get section name from empty parser", func(t *testing.T) {
 		err := parser.LoadFromString("")
-		checkError(t, err)
+		handleTestsErrors(t, err)
 		got := parser.GetSectionNames()
 		want := []string{}
 		if reflect.DeepEqual(got, want) {
@@ -99,7 +99,7 @@ func TestParser_GetSectionNames(t *testing.T) {
 	})
 	t.Run("Get section name from populated parser", func(t *testing.T) {
 		err := parser.LoadFromFile("./testdata/input_file.txt")
-		checkError(t, err)
+		handleTestsErrors(t, err)
 		got := parser.GetSectionNames()
 		want := []string{"forge.example", "topsecret.server.example"}
 		if !slices.Contains(got, "forge.example") || !slices.Contains(got, "topsecret.server.example") {
@@ -109,11 +109,11 @@ func TestParser_GetSectionNames(t *testing.T) {
 }
 
 func TestParser_GetSection(t *testing.T) {
-	t.Helper()
+
 	parser := &IniParser{}
 	t.Run("Get section from empty parser", func(t *testing.T) {
 		err := parser.LoadFromString("")
-		checkError(t, err)
+		handleTestsErrors(t, err)
 		got := parser.GetSection()
 		var want map[string]map[string]string
 		if reflect.DeepEqual(got, want) {
@@ -122,7 +122,7 @@ func TestParser_GetSection(t *testing.T) {
 	})
 	t.Run("Get section from populated parser", func(t *testing.T) {
 		err := parser.LoadFromFile("./testdata/input_file.txt")
-		checkError(t, err)
+		handleTestsErrors(t, err)
 		got := parser.GetSection()
 		want := make(map[string]map[string]string)
 		want["forge.example"] = make(map[string]string)
@@ -139,10 +139,10 @@ func TestParser_GetSection(t *testing.T) {
 }
 
 func TestParser_GetValue(t *testing.T) {
-	t.Helper()
+
 	parser := &IniParser{}
 	err := parser.LoadFromFile("./testdata/input_file.txt")
-	checkError(t, err)
+	handleTestsErrors(t, err)
 	setTests := []struct {
 		test    string
 		section string
@@ -162,10 +162,10 @@ func TestParser_GetValue(t *testing.T) {
 }
 
 func TestParser_SetValue(t *testing.T) {
-	t.Helper()
+
 	parser := &IniParser{}
 	err := parser.LoadFromFile("./testdata/input_file.txt")
-	checkError(t, err)
+	handleTestsErrors(t, err)
 	setTests := []struct {
 		test    string
 		section string
@@ -179,7 +179,7 @@ func TestParser_SetValue(t *testing.T) {
 	}
 	for _, tt := range setTests {
 		err := parser.SetValue(tt.section, tt.key, tt.value)
-		checkError(t, err)
+		handleTestsErrors(t, err)
 		got := parser.section[tt.section][tt.key]
 		if got != tt.want {
 			t.Errorf("test %s got %s want %s", tt.test, got, tt.want)
@@ -188,13 +188,13 @@ func TestParser_SetValue(t *testing.T) {
 }
 
 func TestParser_ToString(t *testing.T) {
-	t.Helper()
+
 	parser := &IniParser{}
 	err := parser.LoadFromFile("./testdata/input_file.txt")
-	checkError(t, err)
+	handleTestsErrors(t, err)
 	got := parser.ToString()
 	err = parser.LoadFromString(got)
-	checkError(t, err)
+	handleTestsErrors(t, err)
 	want := testParserString
 	if parser.section["forge.example"]["User"] != "hg" && parser.section["topsecret.server.example"]["ForwardX11"] != "no" && parser.section["topsecret.server.example"]["Port"] != "50022" {
 		t.Errorf("want:\n%s\nGot:\n%s", want, got)
@@ -204,13 +204,13 @@ func TestParser_ToString(t *testing.T) {
 func TestParser_SaveToFile(t *testing.T) {
 	parser := &IniParser{}
 	err := parser.LoadFromFile("./testdata/input_file.txt")
-	checkError(t, err)
+	handleTestsErrors(t, err)
 	err = parser.SaveToFile("test_output")
-	checkError(t, err)
+	handleTestsErrors(t, err)
 	content, e := os.ReadFile("test_output.txt")
-	checkError(t, e)
+	handleTestsErrors(t, e)
 	err = parser.LoadFromString(string(content))
-	checkError(t, err)
+	handleTestsErrors(t, err)
 	want := testParserString
 	if parser.section["forge.example"]["User"] != "hg" && parser.section["topsecret.server.example"]["ForwardX11"] != "no" && parser.section["topsecret.server.example"]["Port"] != "50022" {
 		t.Errorf("want:\n%s\nGot:\n%s", want, content)

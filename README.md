@@ -64,7 +64,7 @@ This library consists of 8 main functionalities:
 
    Retrieve the value of a key in a specific section.
    ```go
-   value, err := iniparser.GetValue("Section1", "key1")
+   value, err := iniparser.GetValue("forge.example", "User")
    if err != nil {
        //handle error
    }
@@ -74,9 +74,9 @@ This library consists of 8 main functionalities:
 
    Set the value of a key in a specific section. 
    <br>
-   It can also be used to add a new value key pair in a new section 
+   It can also be used to add a new key-value pair in a new section.
    ```go
-   err := iniparser.SetValue("Section1", "key1", "newValue")
+   err := iniparser.SetValue("forge.example", "User", "mariam")
    if err != nil {
         //handle error
    }

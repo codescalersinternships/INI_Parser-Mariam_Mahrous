@@ -7,10 +7,13 @@ import (
 	"strings"
 )
 
+// IniParser is a struct for parsing INI files/strings.
 type IniParser struct {
 	section map[string]map[string]string
 }
 
+// Load INI content from a string.
+// It could return an error if the provided string isn't valid.
 func (parser *IniParser) LoadFromString(content string) error {
 	var currentSection string
 	lines := strings.Split(content, "\n")
@@ -29,6 +32,8 @@ func (parser *IniParser) LoadFromString(content string) error {
 	return nil
 }
 
+// Load INI content from a file.
+// It could return an error if the file isn't valid or if the file isn't found.
 func (parser *IniParser) LoadFromFile(fileName string) error {
 	dat, err := os.ReadFile(fileName)
 	if err != nil {
@@ -38,6 +43,7 @@ func (parser *IniParser) LoadFromFile(fileName string) error {
 	return err
 }
 
+// Retrieve a list of all section names.
 func (parser *IniParser) GetSectionNames() []string {
 	var sections []string
 	for s := range parser.section {
@@ -46,12 +52,15 @@ func (parser *IniParser) GetSectionNames() []string {
 	return sections
 }
 
+// Serialize and convert the INI content into a map with the format {section_name: {key1: val1, key2: val2}, ...}.
 func (parser *IniParser) GetSection() map[string]map[string]string {
 	m2 := make(map[string]map[string]string, len(parser.section))
 	maps.Copy(m2, parser.section)
 	return m2
 }
 
+// Retrieve the value of a key in a specific section.
+// It could return an error if the section/key isn't found.
 func (parser *IniParser) GetValue(sectionName, key string) (string, error) {
 	sectionMap, ok := parser.section[sectionName]
 	if !ok {
@@ -62,13 +71,15 @@ func (parser *IniParser) GetValue(sectionName, key string) (string, error) {
 	return sectionMap[key], nil
 }
 
+// Set the value of a key in a specific section.
+// It can also be used to add a new key-value pair in a new section.
 func (parser *IniParser) SetValue(section, key, value string) error {
 	if section == "" {
 		return fmt.Errorf("Trying to add key and value for an empty section")
 	} else if key == "" {
-		return fmt.Errorf("Can't Set/Add missing key")
+		return fmt.Errorf("Can't set/add missing key")
 	} else if value == "" {
-		return fmt.Errorf("Can't Set/Add missing value")
+		return fmt.Errorf("Can't set/add missing value")
 	}
 	if parser.section == nil {
 		parser.section = make(map[string]map[string]string)
@@ -80,6 +91,7 @@ func (parser *IniParser) SetValue(section, key, value string) error {
 	return nil
 }
 
+// Convert the INI content back to a string format.
 func (parser *IniParser) ToString() string {
 	sectionNames := parser.GetSectionNames()
 	var content string
@@ -93,16 +105,19 @@ func (parser *IniParser) ToString() string {
 	return content
 }
 
+// Save the INI content to a file.
+// Takes the path of the filename as an argument.
+// An error could occur if it can't create/write to the file.
 func (parser *IniParser) SaveToFile(path string) error {
 	dat := parser.ToString()
 	f, err := os.Create(path + ".txt")
 	if err != nil {
-		return fmt.Errorf("Can't Create  %s file", path+".txt")
+		return fmt.Errorf("Can't create %s file", path+".txt")
 	}
 	defer f.Close()
 	_, err = f.WriteString(dat)
 	if err != nil {
-		return fmt.Errorf("Can't write in  %s file", path+".txt")
+		return fmt.Errorf("Can't write to %s file", path+".txt")
 	}
 	return err
 }

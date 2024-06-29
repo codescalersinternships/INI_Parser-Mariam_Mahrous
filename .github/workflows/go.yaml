@@ -18,14 +18,14 @@ jobs:
         go-version: '1.22.4'
 
   format:
-    - name: format
+      name: format
       uses: Jerome1337/gofmt-action@v1.0.5
 
   test:
-    - name: Test
+      name: Test
       run: go test -v ./... 
 
   linter:
-    - name : Run Go-linter
+      name : Run Go-linter
       uses: golangci/golangci-lint-action@v3
       

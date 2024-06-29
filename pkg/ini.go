@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"maps"
 	"os"
@@ -60,13 +61,13 @@ func (parser *IniParser) GetSection() map[string]map[string]string {
 }
 
 // Retrieve the value of a key in a specific section.
-// It could return an error if the section/key isn't found.
+// It could return an error if the section/key not found.
 func (parser *IniParser) GetValue(sectionName, key string) (string, error) {
 	sectionMap, ok := parser.section[sectionName]
 	if !ok {
-		return sectionMap[key], fmt.Errorf("Can't get: section isn't found")
+		return sectionMap[key], fmt.Errorf("Can't get: %s section not found", sectionName)
 	} else if sectionMap[key] == "" {
-		return sectionMap[key], fmt.Errorf("Can't get: key isn't found")
+		return sectionMap[key], fmt.Errorf("Can't get: %s key not found", key)
 	}
 	return sectionMap[key], nil
 }
@@ -75,11 +76,11 @@ func (parser *IniParser) GetValue(sectionName, key string) (string, error) {
 // It can also be used to add a new key-value pair in a new section.
 func (parser *IniParser) SetValue(section, key, value string) error {
 	if section == "" {
-		return fmt.Errorf("Trying to add key and value for an empty section")
+		return errors.New("Trying to add key and value for an empty section")
 	} else if key == "" {
-		return fmt.Errorf("Can't set/add missing key")
+		return errors.New("Can't set/add missing key")
 	} else if value == "" {
-		return fmt.Errorf("Can't set/add missing value")
+		return errors.New("Can't set/add missing value")
 	}
 	if parser.section == nil {
 		parser.section = make(map[string]map[string]string)

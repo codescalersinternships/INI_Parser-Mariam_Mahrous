@@ -36,9 +36,9 @@ func TestParser_LoadFromString(t *testing.T) {
 	})
 	t.Run("valid string", func(t *testing.T) {
 		err := parser.LoadFromString(testParserString)
+		checkError(t, err)
 		got := parser.section["forge.example"]["User"]
 		want := "hg"
-		checkError(t, err)
 		if got != want {
 			t.Errorf("got %s want %s given", got, want)
 		}
@@ -106,7 +106,6 @@ func TestParser_GetSectionNames(t *testing.T) {
 			t.Errorf("got %v want %v given", got, want)
 		}
 	})
-
 }
 
 func TestParser_GetSection(t *testing.T) {
@@ -144,29 +143,22 @@ func TestParser_GetValue(t *testing.T) {
 	parser := &IniParser{}
 	err := parser.LoadFromFile("golden_file.txt")
 	checkError(t, err)
-	t.Run("Gettting a value that exists", func(t *testing.T) {
-		got, err := parser.GetValue("forge.example", "User")
-		checkError(t, err)
-		want := "hg"
-		if got != want {
-			t.Errorf("got %s want %s", got, want)
+	setTests := []struct {
+		test    string
+		section string
+		key     string
+		want    string
+	}{
+		{"Gettting a value that exists", "forge.example", "User", "hg"},
+		{"Gettting a value from a key that doesn't exitsts", "forge.example", "user", ""},
+		{"Gettting a value from a section that doesn't exitsts", "default", "user", ""},
+	}
+	for _, tt := range setTests {
+		got, _ := parser.GetValue(tt.section, tt.key)
+		if got != tt.want {
+			t.Errorf("test %s got %s want %s", tt.test, got, tt.want)
 		}
-	})
-	t.Run("Gettting a value from a key that doesn't exitsts", func(t *testing.T) {
-		got, _ := parser.GetValue("forge.example", "user")
-		want := ""
-		if got != want {
-			t.Errorf("got %s want %s", got, want)
-		}
-	})
-	t.Run("Gettting a value from a section that doesn't exitsts", func(t *testing.T) {
-		got, _ := parser.GetValue("default", "user")
-		want := ""
-		if got != want {
-			t.Errorf("got %s want %s", got, want)
-		}
-	})
-
+	}
 }
 
 func TestParser_SetValue(t *testing.T) {
@@ -175,21 +167,22 @@ func TestParser_SetValue(t *testing.T) {
 	err := parser.LoadFromFile("golden_file.txt")
 	checkError(t, err)
 	setTests := []struct {
+		test    string
 		section string
 		key     string
 		value   string
 		want    string
 	}{
-		{"forge.example", "User", "mariam", "mariam"},
-		{"forge.example", "IP_address", "80:60:244:32", "80:60:244:32"},
-		{"Default", "IP_address", "80:60:244:32", "80:60:244:32"},
+		{"Setting a value", "forge.example", "User", "mariam", "mariam"},
+		{"Adding a value in an existing section", "forge.example", "IP_address", "80:60:244:32", "80:60:244:32"},
+		{"Adding a value in a new section", "Default", "IP_address", "80:60:244:32", "80:60:244:32"},
 	}
 	for _, tt := range setTests {
 		err := parser.SetValue(tt.section, tt.key, tt.value)
 		checkError(t, err)
 		got := parser.section[tt.section][tt.key]
 		if got != tt.want {
-			t.Errorf("got %s want %s given", got, tt.want)
+			t.Errorf("test %s got %s want %s", tt.test, got, tt.want)
 		}
 	}
 }

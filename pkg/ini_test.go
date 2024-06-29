@@ -59,7 +59,7 @@ func TestParser_LoadFromFile(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
 	t.Run("valid file", func(t *testing.T) {
-		err := parser.LoadFromFile("golden_file.txt")
+		err := parser.LoadFromFile("./testdata/input_file.txt")
 		checkError(t, err)
 		got := parser.section["forge.example"]["User"]
 		want := "hg"
@@ -98,7 +98,7 @@ func TestParser_GetSectionNames(t *testing.T) {
 		}
 	})
 	t.Run("Get section name from populated parser", func(t *testing.T) {
-		err := parser.LoadFromFile("golden_file.txt")
+		err := parser.LoadFromFile("./testdata/input_file.txt")
 		checkError(t, err)
 		got := parser.GetSectionNames()
 		want := []string{"forge.example", "topsecret.server.example"}
@@ -121,7 +121,7 @@ func TestParser_GetSection(t *testing.T) {
 		}
 	})
 	t.Run("Get section from populated parser", func(t *testing.T) {
-		err := parser.LoadFromFile("golden_file.txt")
+		err := parser.LoadFromFile("./testdata/input_file.txt")
 		checkError(t, err)
 		got := parser.GetSection()
 		want := make(map[string]map[string]string)
@@ -141,7 +141,7 @@ func TestParser_GetSection(t *testing.T) {
 func TestParser_GetValue(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
-	err := parser.LoadFromFile("golden_file.txt")
+	err := parser.LoadFromFile("./testdata/input_file.txt")
 	checkError(t, err)
 	setTests := []struct {
 		test    string
@@ -164,7 +164,7 @@ func TestParser_GetValue(t *testing.T) {
 func TestParser_SetValue(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
-	err := parser.LoadFromFile("golden_file.txt")
+	err := parser.LoadFromFile("./testdata/input_file.txt")
 	checkError(t, err)
 	setTests := []struct {
 		test    string
@@ -190,7 +190,7 @@ func TestParser_SetValue(t *testing.T) {
 func TestParser_ToString(t *testing.T) {
 	t.Helper()
 	parser := &IniParser{}
-	err := parser.LoadFromFile("golden_file.txt")
+	err := parser.LoadFromFile("./testdata/input_file.txt")
 	checkError(t, err)
 	got := parser.ToString()
 	err = parser.LoadFromString(got)
@@ -203,7 +203,7 @@ func TestParser_ToString(t *testing.T) {
 
 func TestParser_SaveToFile(t *testing.T) {
 	parser := &IniParser{}
-	err := parser.LoadFromFile("golden_file.txt")
+	err := parser.LoadFromFile("./testdata/input_file.txt")
 	checkError(t, err)
 	err = parser.SaveToFile("test_output")
 	checkError(t, err)

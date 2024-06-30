@@ -97,10 +97,10 @@ func (parser *IniParser) ToString() string {
 	sectionNames := parser.GetSectionNames()
 	var content string
 	for _, section := range sectionNames {
-		content += "\n" + "[" + section + "]\n"
+		content += fmt.Sprintf("\n[%v]\n", section)
 		smallMap := parser.section[section]
 		for k, v := range smallMap {
-			content += k + " = " + v + "\n"
+			content += fmt.Sprintf("%v = %v \n", k, v)
 		}
 	}
 	return content

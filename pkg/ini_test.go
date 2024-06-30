@@ -59,7 +59,7 @@ func TestParser_LoadFromFile(t *testing.T) {
 
 	parser := &IniParser{}
 	t.Run("valid file", func(t *testing.T) {
-		err := parser.LoadFromFile("./testdata/input_file.txt")
+		err := parser.LoadFromFile("./testdata/input_file.ini")
 		handleTestsErrors(t, err)
 		got := parser.section["forge.example"]["User"]
 		want := "hg"
@@ -78,7 +78,7 @@ func TestParser_LoadFromFile(t *testing.T) {
 		}
 	})
 	t.Run("invalid file", func(t *testing.T) {
-		err := parser.LoadFromFile("goldefile.txt")
+		err := parser.LoadFromFile("goldefile.ini")
 		if err == nil {
 			t.Fail()
 		}
@@ -98,7 +98,7 @@ func TestParser_GetSectionNames(t *testing.T) {
 		}
 	})
 	t.Run("Get section name from populated parser", func(t *testing.T) {
-		err := parser.LoadFromFile("./testdata/input_file.txt")
+		err := parser.LoadFromFile("./testdata/input_file.ini")
 		handleTestsErrors(t, err)
 		got := parser.GetSectionNames()
 		want := []string{"forge.example", "topsecret.server.example"}
@@ -121,7 +121,7 @@ func TestParser_GetSection(t *testing.T) {
 		}
 	})
 	t.Run("Get section from populated parser", func(t *testing.T) {
-		err := parser.LoadFromFile("./testdata/input_file.txt")
+		err := parser.LoadFromFile("./testdata/input_file.ini")
 		handleTestsErrors(t, err)
 		got := parser.GetSection()
 		want := make(map[string]map[string]string)
@@ -141,7 +141,7 @@ func TestParser_GetSection(t *testing.T) {
 func TestParser_GetValue(t *testing.T) {
 
 	parser := &IniParser{}
-	err := parser.LoadFromFile("./testdata/input_file.txt")
+	err := parser.LoadFromFile("./testdata/input_file.ini")
 	handleTestsErrors(t, err)
 	setTests := []struct {
 		test    string
@@ -164,7 +164,7 @@ func TestParser_GetValue(t *testing.T) {
 func TestParser_SetValue(t *testing.T) {
 
 	parser := &IniParser{}
-	err := parser.LoadFromFile("./testdata/input_file.txt")
+	err := parser.LoadFromFile("./testdata/input_file.ini")
 	handleTestsErrors(t, err)
 	setTests := []struct {
 		test    string
@@ -190,7 +190,7 @@ func TestParser_SetValue(t *testing.T) {
 func TestParser_ToString(t *testing.T) {
 
 	parser := &IniParser{}
-	err := parser.LoadFromFile("./testdata/input_file.txt")
+	err := parser.LoadFromFile("./testdata/input_file.ini")
 	handleTestsErrors(t, err)
 	got := parser.ToString()
 	err = parser.LoadFromString(got)
@@ -203,11 +203,11 @@ func TestParser_ToString(t *testing.T) {
 
 func TestParser_SaveToFile(t *testing.T) {
 	parser := &IniParser{}
-	err := parser.LoadFromFile("./testdata/input_file.txt")
+	err := parser.LoadFromFile("./testdata/input_file.ini")
 	handleTestsErrors(t, err)
 	err = parser.SaveToFile("test_output")
 	handleTestsErrors(t, err)
-	content, e := os.ReadFile("test_output.txt")
+	content, e := os.ReadFile("test_output.ini")
 	handleTestsErrors(t, e)
 	err = parser.LoadFromString(string(content))
 	handleTestsErrors(t, err)
@@ -215,5 +215,5 @@ func TestParser_SaveToFile(t *testing.T) {
 	if parser.section["forge.example"]["User"] != "hg" && parser.section["topsecret.server.example"]["ForwardX11"] != "no" && parser.section["topsecret.server.example"]["Port"] != "50022" {
 		t.Errorf("want:\n%s\nGot:\n%s", want, content)
 	}
-	os.Remove("test_output.txt")
+	os.Remove("test_output.ini")
 }

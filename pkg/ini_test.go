@@ -193,10 +193,11 @@ func TestParser_String(t *testing.T) {
 	err := parser.LoadFromFile("./testdata/input_file.ini")
 	handleTestsErrors(t, err)
 	got := parser.String()
-	err = parser.LoadFromString(got)
+	newparser := &IniParser{}
+	err = newparser.LoadFromString(got)
 	handleTestsErrors(t, err)
 	want := testParserString
-	if parser.section["forge.example"]["User"] != "hg" && parser.section["topsecret.server.example"]["ForwardX11"] != "no" && parser.section["topsecret.server.example"]["Port"] != "50022" {
+	if newparser.section["forge.example"]["User"] != "hg" && newparser.section["topsecret.server.example"]["ForwardX11"] != "no" && newparser.section["topsecret.server.example"]["Port"] != "50022" {
 		t.Errorf("want:\n%s\nGot:\n%s", want, got)
 	}
 }
@@ -209,10 +210,11 @@ func TestParser_SaveToFile(t *testing.T) {
 	handleTestsErrors(t, err)
 	content, e := os.ReadFile("test_output.ini")
 	handleTestsErrors(t, e)
-	err = parser.LoadFromString(string(content))
+	newparser := &IniParser{}
+	err = newparser.LoadFromString(string(content))
 	handleTestsErrors(t, err)
 	want := testParserString
-	if parser.section["forge.example"]["User"] != "hg" && parser.section["topsecret.server.example"]["ForwardX11"] != "no" && parser.section["topsecret.server.example"]["Port"] != "50022" {
+	if newparser.section["forge.example"]["User"] != "hg" && newparser.section["topsecret.server.example"]["ForwardX11"] != "no" && newparser.section["topsecret.server.example"]["Port"] != "50022" {
 		t.Errorf("want:\n%s\nGot:\n%s", want, content)
 	}
 	os.Remove("test_output.ini")

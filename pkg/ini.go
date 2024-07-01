@@ -24,7 +24,7 @@ func (parser *IniParser) LoadFromString(content string) error {
 			currentSection = line[1 : len(line)-1]
 		} else if strings.Contains(line, "=") && !strings.HasPrefix(line, "#") && !strings.HasPrefix(line, ";") {
 			values := strings.Split(line, "=")
-			err := parser.SetValue(currentSection, strings.TrimSpace(values[0]), strings.TrimSpace(values[1]))
+			err := parser.Set(currentSection, strings.TrimSpace(values[0]), strings.TrimSpace(values[1]))
 			if err != nil {
 				return err
 			}
@@ -62,7 +62,7 @@ func (parser *IniParser) GetSection() map[string]map[string]string {
 
 // Retrieve the value of a key in a specific section.
 // It could return an error if the section/key not found.
-func (parser *IniParser) GetValue(sectionName, key string) (string, error) {
+func (parser *IniParser) Get(sectionName, key string) (string, error) {
 	sectionMap, ok := parser.section[sectionName]
 	if !ok {
 		return sectionMap[key], fmt.Errorf("can't get: %s section not found", sectionName)
@@ -74,13 +74,13 @@ func (parser *IniParser) GetValue(sectionName, key string) (string, error) {
 
 // Set the value of a key in a specific section.
 // It can also be used to add a new key-value pair in a new section.
-func (parser *IniParser) SetValue(section, key, value string) error {
+func (parser *IniParser) Set(section, key, value string) error {
 	if section == "" {
 		return errors.New("trying to add key and value for an empty section")
 	} else if key == "" {
-		return errors.New("can't set/add missing key")
+		return fmt.Errorf("can't set/add missing key for section : %s & value : %s", section, value)
 	} else if value == "" {
-		return errors.New("can't set/add missing value")
+		return fmt.Errorf("can't set/add missing value for section : %s & key : %s", section, key)
 	}
 	if parser.section == nil {
 		parser.section = make(map[string]map[string]string)
@@ -93,7 +93,7 @@ func (parser *IniParser) SetValue(section, key, value string) error {
 }
 
 // Convert the INI content back to a string format.
-func (parser *IniParser) ToString() string {
+func (parser *IniParser) String() string {
 	sectionNames := parser.GetSectionNames()
 	var content string
 	for _, section := range sectionNames {
@@ -110,15 +110,15 @@ func (parser *IniParser) ToString() string {
 // Takes the path of the filename as an argument.
 // An error could occur if it can't create/write to the file.
 func (parser *IniParser) SaveToFile(path string) error {
-	dat := parser.ToString()
-	f, err := os.Create(path + ".ini")
+	dat := parser.String()
+	f, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("can't create %s file", path+".ini")
+		return fmt.Errorf("can't create %s file", path)
 	}
 	defer f.Close()
 	_, err = f.WriteString(dat)
 	if err != nil {
-		return fmt.Errorf("can't write to %s file", path+".ini")
+		return fmt.Errorf("can't write to %s file", path)
 	}
 	return err
 }

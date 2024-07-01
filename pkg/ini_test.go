@@ -138,7 +138,7 @@ func TestParser_GetSection(t *testing.T) {
 
 }
 
-func TestParser_GetValue(t *testing.T) {
+func TestParser_Get(t *testing.T) {
 
 	parser := &IniParser{}
 	err := parser.LoadFromFile("./testdata/input_file.ini")
@@ -154,14 +154,14 @@ func TestParser_GetValue(t *testing.T) {
 		{"Gettting a value from a section that doesn't exitsts", "default", "user", ""},
 	}
 	for _, tt := range setTests {
-		got, _ := parser.GetValue(tt.section, tt.key)
+		got, _ := parser.Get(tt.section, tt.key)
 		if got != tt.want {
 			t.Errorf("test %s got %s want %s", tt.test, got, tt.want)
 		}
 	}
 }
 
-func TestParser_SetValue(t *testing.T) {
+func TestParser_Set(t *testing.T) {
 
 	parser := &IniParser{}
 	err := parser.LoadFromFile("./testdata/input_file.ini")
@@ -178,7 +178,7 @@ func TestParser_SetValue(t *testing.T) {
 		{"Adding a value in a new section", "Default", "IP_address", "80:60:244:32", "80:60:244:32"},
 	}
 	for _, tt := range setTests {
-		err := parser.SetValue(tt.section, tt.key, tt.value)
+		err := parser.Set(tt.section, tt.key, tt.value)
 		handleTestsErrors(t, err)
 		got := parser.section[tt.section][tt.key]
 		if got != tt.want {
@@ -187,12 +187,12 @@ func TestParser_SetValue(t *testing.T) {
 	}
 }
 
-func TestParser_ToString(t *testing.T) {
+func TestParser_String(t *testing.T) {
 
 	parser := &IniParser{}
 	err := parser.LoadFromFile("./testdata/input_file.ini")
 	handleTestsErrors(t, err)
-	got := parser.ToString()
+	got := parser.String()
 	err = parser.LoadFromString(got)
 	handleTestsErrors(t, err)
 	want := testParserString
@@ -205,7 +205,7 @@ func TestParser_SaveToFile(t *testing.T) {
 	parser := &IniParser{}
 	err := parser.LoadFromFile("./testdata/input_file.ini")
 	handleTestsErrors(t, err)
-	err = parser.SaveToFile("test_output")
+	err = parser.SaveToFile("test_output.ini")
 	handleTestsErrors(t, err)
 	content, e := os.ReadFile("test_output.ini")
 	handleTestsErrors(t, e)

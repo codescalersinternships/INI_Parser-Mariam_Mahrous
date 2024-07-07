@@ -103,7 +103,7 @@ func TestParser_GetSectionNames(t *testing.T) {
 		got := parser.GetSectionNames()
 		want := []string{"forge.example", "topsecret.server.example"}
 		if !slices.Contains(got, "forge.example") || !slices.Contains(got, "topsecret.server.example") {
-			t.Errorf("got %v want %v given", got, want)
+			t.Errorf("got %v want %v", got, want)
 		}
 	})
 }
@@ -115,9 +115,9 @@ func TestParser_GetSections(t *testing.T) {
 		err := parser.LoadFromString("")
 		handleTestsErrors(t, err)
 		got := parser.GetSections()
-		var want map[string]map[string]string
-		if reflect.DeepEqual(got, want) {
-			t.Errorf("got %v want %v given", got, want)
+		var want = make(map[string]map[string]string)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
 		}
 	})
 	t.Run("Get section from populated parser", func(t *testing.T) {
@@ -132,7 +132,7 @@ func TestParser_GetSections(t *testing.T) {
 		want["topsecret.server.example"]["ForwardX11"] = "no"
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got %v want %v given", got, want)
+			t.Errorf("got %v want %v", got, want)
 		}
 	})
 
